@@ -536,45 +536,13 @@ async function getFinancialSummary(startDate, endDate, companyId) {
         { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } }
     ]);
 
-    // Buscar despesas com limites por categoria usando $switch
+    // Buscar despesas - Simplificando a query para debug
+    const expenseMatch = { date: { $gte: startDate, $lte: endDate } };
+    if (companyId) expenseMatch.company = new mongoose.Types.ObjectId(companyId);
+    
     const expenses = await Expense.aggregate([
         {
-            $match: {
-                date: { $gte: startDate, $lte: endDate }
-            }
-        },
-        {
-            $match: {
-                $expr: {
-                    $and: [
-                        { $gt: ['$amount', 0] },
-                        {
-                            $lte: ['$amount',
-                                {
-                                    $switch: {
-                                        branches: [
-                                            { case: { $eq: ['$category', 'energia'] }, then: 50000 },
-                                            { case: { $eq: ['$category', 'agua'] }, then: 10000 },
-                                            { case: { $eq: ['$category', 'internet'] }, then: 5000 },
-                                            { case: { $eq: ['$category', 'telefone'] }, then: 5000 },
-                                            { case: { $eq: ['$category', 'aluguel'] }, then: 50000 },
-                                            { case: { $eq: ['$category', 'material_escritorio'] }, then: 10000 },
-                                            { case: { $eq: ['$category', 'manutencao'] }, then: 20000 },
-                                            { case: { $eq: ['$category', 'transporte'] }, then: 15000 },
-                                            { case: { $eq: ['$category', 'alimentacao'] }, then: 10000 },
-                                            { case: { $eq: ['$category', 'salarios'] }, then: 100000 },
-                                            { case: { $eq: ['$category', 'impostos'] }, then: 50000 },
-                                            { case: { $eq: ['$category', 'software'] }, then: 20000 },
-                                            { case: { $eq: ['$category', 'equipamentos'] }, then: 100000 }
-                                        ],
-                                        default: 20000
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
+            $match: expenseMatch
         },
         {
             $group: {
@@ -593,6 +561,17 @@ async function getFinancialSummary(startDate, endDate, companyId) {
         }
     ]);
 
+    // Log para debug
+    console.log('Debug Financeiro:', {
+        startDate,
+        endDate,
+        companyId,
+        revenueFound: revenue.length > 0,
+        expensesFound: expenses.length > 0,
+        totalExpenses: expenses.length,
+        expenseCategories: expenses.map(e => e._id)
+    });
+
     // Calcular totais
     const totalRevenue = revenue[0]?.totalRevenue || 0;
     const totalExpenses = expenses.reduce((sum, exp) => sum + exp.totalAmount, 0);
@@ -606,7 +585,7 @@ async function getFinancialSummary(startDate, endDate, companyId) {
         average: Math.round(exp.averageAmount * 100) / 100,
         min: Math.round(exp.minAmount * 100) / 100,
         max: Math.round(exp.maxAmount * 100) / 100,
-        percentageOfTotal: Math.round((exp.totalAmount / totalExpenses) * 100 * 100) / 100
+        percentageOfTotal: totalExpenses ? Math.round((exp.totalAmount / totalExpenses) * 100 * 100) / 100 : 0
     }));
 
     return {

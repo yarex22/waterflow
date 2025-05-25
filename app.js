@@ -45,12 +45,58 @@ const swaggerOptions = {
 // Gerar documentação Swagger
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-// Middlewares de Segurança
-app.use(helmet()); // Segurança de cabeçalhos HTTP
-app.use(mongoSanitize()); // Previne injeção de NoSQL
-app.use(compression()); // Compressão de resposta
-app.use(express.json({ limit: '10kb' })); // Limite de tamanho do body
-app.use(cors()); // Habilita CORS
+// Body parser configuration
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
+
+// Security Middlewares
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin" }
+}));
+app.use(mongoSanitize());
+app.use(compression());
+
+// Comprehensive CORS configuration
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:8080',
+            'http://172.30.208.1:8080',
+            'https://waterflow-jafo.onrender.com',
+            'http://localhost:5173', // Vite default port
+            undefined // Allow requests with no origin (like mobile apps or curl requests)
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'token',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'Access-Control-Allow-Headers',
+        'Access-Control-Request-Method',
+        'Access-Control-Request-Headers'
+    ],
+    exposedHeaders: ['token', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    maxAge: 86400 // Preflight results cache for 24 hours
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -67,14 +113,9 @@ if (process.env.NODE_ENV === 'development') {
 // Configuração da documentação Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 // Adicione esta configuração para arquivos estáticos ANTES de qualquer middleware de autenticação
 // Tornar a pasta uploads pública e acessível
 app.use('/api/uploads', express.static('uploads', { public: true }));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
 
 // Servir arquivos estáticos da pasta uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -134,29 +175,30 @@ const invoiceRoutes = require('./routes/waterflow/invoiceRoutes');
 
 // Definição das rotas da API com autenticação
 app.use("/api", authRoutes);
-app.use("/api", userRoutes);
 
-app.use("/api", companyRoutes);
-app.use("/api", provinceRoutes);
-app.use("/api", departmentRoutes);
-app.use("/api", customerRoutes);
-app.use("/api", districtRoutes);
-app.use("/api", systemRoutes);
-app.use("/api", neighborhoodRoutes);
-app.use("/api", connectionRoutes);
-app.use("/api", employeeRoutes);
-app.use("/api", salaryRoutes);
-app.use("/api", taxBenefitRoutes);
-app.use("/api", employeeTaxBenefitRoutes);
-app.use("/api", expenseRoutes);
-app.use("/api", infractionTypeRoutes);
-app.use("/api", connectionInfractionRoutes);
-app.use("/api", customerInfractionRoutes);
-app.use("/api", readingRoutes);
-app.use("/api", paymentRoutes);
-// app.use("/api", Dashboard)
-app.use("/api", dashboardRoutes);
-app.use("/api", invoiceRoutes);
+// Rotas que requerem autenticação
+const { isAuthenticated } = require("./middleware/auth");
+app.use("/api", isAuthenticated, userRoutes);
+app.use("/api", isAuthenticated, companyRoutes);
+app.use("/api", isAuthenticated, provinceRoutes);
+app.use("/api", isAuthenticated, departmentRoutes);
+app.use("/api", isAuthenticated, customerRoutes);
+app.use("/api", isAuthenticated, districtRoutes);
+app.use("/api", isAuthenticated, systemRoutes);
+app.use("/api", isAuthenticated, neighborhoodRoutes);
+app.use("/api", isAuthenticated, connectionRoutes);
+app.use("/api", isAuthenticated, employeeRoutes);
+app.use("/api", isAuthenticated, salaryRoutes);
+app.use("/api", isAuthenticated, taxBenefitRoutes);
+app.use("/api", isAuthenticated, employeeTaxBenefitRoutes);
+app.use("/api", isAuthenticated, expenseRoutes);
+app.use("/api", isAuthenticated, infractionTypeRoutes);
+app.use("/api", isAuthenticated, connectionInfractionRoutes);
+app.use("/api", isAuthenticated, customerInfractionRoutes);
+app.use("/api", isAuthenticated, readingRoutes);
+app.use("/api", isAuthenticated, paymentRoutes);
+app.use("/api", isAuthenticated, dashboardRoutes);
+app.use("/api", isAuthenticated, invoiceRoutes);
 app.use((req, res, next) => {
   console.log("Received headers:", req.headers);
   next();
