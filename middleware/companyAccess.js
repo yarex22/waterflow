@@ -1,4 +1,4 @@
-const ErrorResponse = require("../utils/ErrorResponse");
+const ErrorResponse = require("../utils/errorResponse");
 const mongoose = require("mongoose");
 const Customer = require('../models/waterflow/customer/CustomerModel');
 const Payment = require('../models/waterflow/payment/PaymentModel');
