@@ -1,5 +1,5 @@
 const User = require("../models/userModel");
-const ErrorResponse = require("../utils/ErrorResponse");
+const ErrorResponse = require("../utils/CustomErrorResponse");
 // Import required modules
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");

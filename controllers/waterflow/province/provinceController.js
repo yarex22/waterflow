@@ -1,6 +1,6 @@
 const Province = require('../../../models/waterflow/province/ProvinceModel');
 const Company = require('../../../models/waterflow/company/CompanyModel');
-const ErrorResponse = require('../../../utils/ErrorResponse');
+const ErrorResponse = require('../../../utils/CustomErrorResponse');
 const asyncHandler = require('../../../middleware/asyncHandler');
 const logger = require('../../../utils/logger');
 const mongoose = require('mongoose');

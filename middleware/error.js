@@ -1,4 +1,4 @@
-const ErrorResponse = require("../utils/ErrorResponse");
+const ErrorResponse = require("../utils/CustomErrorResponse");
 
 const notFound = (req, res, next) => {
   const error = new Error(`Rota não encontrada - ${req.originalUrl}`);

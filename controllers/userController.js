@@ -1,5 +1,5 @@
 const User = require("../models/userModel");
-const ErrorResponse = require("../utils/ErrorResponse");
+const ErrorResponse = require("../utils/CustomErrorResponse");
 const asyncHandler = require("../middleware/asyncHandler");
 const bcrypt = require("bcrypt");
 const rateLimit = require('express-rate-limit');
