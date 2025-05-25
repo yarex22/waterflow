@@ -1,5 +1,5 @@
 const System = require('../../../models/waterflow/system/SystemModel');
-const ErrorResponse = require('../../../utils/ErrorResponse');
+const ErrorResponse = require('../../../utils/errorResponse');
 const asyncHandler = require('../../../middleware/asyncHandler');
 const logger = require('../../../utils/logger');
 const mongoose = require('mongoose');

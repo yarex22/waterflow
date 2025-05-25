@@ -1,6 +1,6 @@
 // controllers/waterflow/taxBenefitController.js
 const TaxBenefit = require('../../../models/waterflow/taxBenefit/TaxBenefitModel');
-const ErrorResponse = require('../../../utils/ErrorResponse');
+const ErrorResponse = require('../../../utils/errorResponse');
 const asyncHandler = require('../../../middleware/asyncHandler');
 const logger = require('../../../utils/logger');
 

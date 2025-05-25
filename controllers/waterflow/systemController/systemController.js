@@ -1,5 +1,5 @@
 const Service = require("../../models/servicos/servicoModel");
-const ErrorResponse = require("../../utils/errorResponse");
+const ErrorResponse = require("../../utils/ErrorResponse");
 const asyncHandler = require("../../middleware/asyncHandler");
 
 //create admin
