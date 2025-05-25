@@ -227,6 +227,6 @@ process.on('SIGTERM', () => {
         console.log('💥 Process terminated!');
     });
 });
-
 // Aplicar middleware de verificação de acesso após a autenticação
 app.use(checkReportOnlyAccess);
+

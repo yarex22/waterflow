@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Customer = require('../models/waterflow/customer/CustomerModel');
 const Payment = require('../models/waterflow/payment/PaymentModel');
 const CustomerInfraction = require('../models/waterflow/customerInfraction/CustomerInfractionModel');
-const Invoice = require('../models/waterflow/Invoice/InvoiceModel');
+const Invoice = require('../models/waterflow/invoice/InvoiceModel');
 
 // Middleware para verificar acesso baseado em empresa
 exports.checkCompanyAccess = (resource) => async (req, res, next) => {
