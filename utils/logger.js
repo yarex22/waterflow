@@ -79,13 +79,29 @@ if (process.env.NODE_ENV !== 'production') {
   );
 }
 
-// Função auxiliar para log de requisições HTTP
+// Middleware para log de requisições HTTP
 logger.logRequest = (req, res, next) => {
-  logger.http(`${req.method} ${req.originalUrl} - ${req.ip}`);
+  logger.http({
+    method: req.method,
+    path: req.originalUrl,
+    ip: req.ip,
+    timestamp: new Date().toISOString()
+  });
   next();
 };
 
 // Função auxiliar para log de erros
+// Middleware para log de requisições HTTP
+logger.logRequest = (req, res, next) => {
+  logger.http({
+    method: req.method,
+    path: req.originalUrl,
+    ip: req.ip,
+    timestamp: new Date().toISOString()
+  });
+  next();
+};
+
 logger.logError = (err, req) => {
   logger.error({
     message: err.message,
@@ -107,4 +123,4 @@ logger.logBusiness = (operation, details) => {
   });
 };
 
-module.exports = logger; 
+module.exports = logger;
